@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true" scan="true" scanPeriod="60 seconds"
+	packagingData="true">
+
+	<contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+		<resetJUL>true</resetJUL>
+	</contextListener>
+
+	<!-- To enable JMX Management -->
+	<jmxConfigurator />
+	
+	<!-- <property resource="device.properties" /> -->
+	<property name="LOG_HOME" value="/logs/demo" />
+	<property name="APP_NAME" value="demo" /> 
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{40}-%msg%n%xEx{10}</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="errorFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_HOME}/${APP_NAME}Error.log</file>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${LOG_HOME}/${APP_NAME}Error_%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxFileSize>10MB</maxFileSize>
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{40} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="fileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_HOME}/${APP_NAME}.log</file>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_HOME}/${APP_NAME}_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<maxFileSize>10MB</maxFileSize>
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>1GB</totalSizeCap>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{15} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
+		<evaluator class="ch.qos.logback.classic.boolex.OnMarkerEvaluator">
+			<marker>NOTIFY_ADMIN</marker>
+		</evaluator>
+		
+		<cyclicBufferTracker class="ch.qos.logback.core.spi.CyclicBufferTracker">
+		<!-- send ten logs entry per email -->
+			<bufferSize>10</bufferSize>
+		</cyclicBufferTracker>
+		
+		<smtpHost>smtp.mxhichina.com</smtpHost>
+		<to>xiaocan.ji@langmy.com</to>
+		<from>log@langmy.com</from>
+		<username>log@langmy.com</username>
+		<password>Langmy2016</password>
+		<subject>${APP_NAME}: %logger{20} - %msg%n</subject>
+		<layout class="ch.qos.logback.classic.html.HTMLLayout">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS}%level%logger%msg{100}</pattern>
+		</layout>
+	</appender>
+
+	<!-- 修改device状态时的数据库查询不详细列出来 （TRACE级别） -->
+	<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="INFO" />
+
+	<logger name="org.hibernate.type.descriptor.sql.BasicExtractor" level="DEBUG" />
+
+	<!-- 查询修改数据库的语句不详细列出来（级别为DEBUG） -->
+	<logger name="org.hibernate.SQL" level="INFO" />
+
+	<logger name="org.hibernate.engine.QueryParameters" level="DEBUG" />
+	<logger name="org.hibernate.engine.query.HQLQueryPlan" level="DEBUG" />
+
+	<logger name="org.springframework" level="ERROR" />
+	<logger name="org.hibernate.hql.internal" level="ERROR" />
+	<logger name="org.hibernate.cfg" level="ERROR" />
+	<logger name="org.hibernate.loader" level="ERROR" />
+	<logger name="org.hibernate.ejb" level="ERROR" />
+	<logger name="org.hibernate.internal" level="ERROR" />
+	<logger name="org.hibernate.validator" level="INFO" />
+	<logger name="org.hibernate.type" level="ERROR" />
+	<logger name="org.hibernate.id" level="ERROR" />
+	<logger name="org.hibernate.persister" level="ERROR" />
+	<logger name="org.apache.shiro" level="ERROR" />
+	<logger name="net.sf.ehcache" level="ERROR" />
+	<logger name="org.hibernate.engine" level="ERROR" />
+	<logger name="org.drools" level="info" />
+	<logger name="org.quartz" level="info" />
+	<logger name="org.hibernate.event" level="ERROR" />
+	<logger name="org.apache.juli" level="Error" />
+	<logger name="org.apache.commons" level="INFO"/>
+	<logger name="org.apache.zookeeper" level="INFO"/>
+
+	<root level="debug">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="errorFile" />
+		<appender-ref ref="fileAppender" />
+		<!-- <appender-ref ref="EMAIL" /> -->
+	</root>
+</configuration>
